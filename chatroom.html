@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+</head>
+<style>
+    #inp{
+        width:90%;
+        height:5%;
+        position:fixed;
+        bottom:0px;
+    }
+    #but{
+        
+        position:fixed;
+        bottom:0px;
+        height:5%;
+        left:93%;
+    }
+    div{
+        display:inline;
+    }
+</style>
+<body>
+    <h1>Custom Chatroom</h1>
+    <ul id="list"></ul>
+    <div>
+    <input type="text" id="inp"/><button id="but">SEND</button></div>
+</body>
+</html>
+<script>
+   (function(){
+         let but=document.getElementById("but");
+         let inp=document.getElementById("inp");
+         let list=document.getElementById("list");
+         let ws;
+         function showMessage(message){
+            const li=document.createElement('li');
+            li.innerText=message;
+            list.appendChild(li);
+
+         }
+         function init(){
+            ws=new WebSocket('ws://localhost:6969');
+            ws.onopen=()=>{
+                console.log('listening');
+            }
+            ws.onmessage=async({data})=>{
+                const text=await data.text();
+                showMessage(text);
+            }
+            ws.onclose = function() {
+             ws = null;
+               }
+         }
+         but.onclick=()=>{
+            ws.send(inp.value);
+            fetch('http://localhost:3005/start',{
+                method:"POST",
+                headers: { 'Content-Type': 'application/json' },
+                body:JSON.stringify({
+                     Code:inp.value
+                })
+            })
+
+         }
+         init();
+    })();
+</script>
